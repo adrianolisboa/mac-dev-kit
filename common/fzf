@@ -1,5 +1,7 @@
-# vim: ft=sh sw=2 ts=2 expandtab
+# vim: ft=zsh sw=2 ts=2 expandtab
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+# Load fzf key bindings and completion for Zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Set fzf default options
 export FZF_DEFAULT_OPTS='--height 40% --reverse --border'

@@ -1,34 +1,32 @@
-# vim: ft=sh sw=2 ts=2 expandtab
+# vim: ft=zsh sw=2 ts=2 expandtab
 
-# Good information on bash history keeping
-# http://mywiki.wooledge.org/BashFAQ/088
+# History Size: Large enough to remember thousands of commands
+export HISTSIZE=100000
+export HISTFILESIZE=100000
+export HISTFILE=~/.zsh_history
 
-# "You anticipate the point in time where you will have accumulated so many
-# commands in your history file that you will never have to type a new one."
-# http://rjpower.org/wordpress/bash-isms-i-wish-i-knew-earlier/
-export HISTSIZE=
-export HISTFILESIZE=
-
-# ignoring some commands from history, gotta type them again
-# if mistyped
+# Ignore certain commands from history
 export HISTIGNORE="clear:bg:fg:exit:* --help"
-
-# Causes history -a to be called every time a prompt will
-# presented by bash, ensuring that we do not lose history
-# lines.
-export PROMPT_COMMAND='history -a'
 
 # Enable Erlang Shell History
 export ERL_AFLAGS="-kernel shell_history enabled -kernel shell_history_file_bytes 2097152"
 
-setopt APPEND_HISTORY
+# Ensure history is properly managed
+setopt APPEND_HISTORY       # Append history instead of overwriting
+setopt INC_APPEND_HISTORY   # Write history incrementally after each command
+setopt SHARE_HISTORY        # Share history across multiple Zsh sessions
+setopt HIST_IGNORE_ALL_DUPS # Remove duplicate history entries
+setopt HIST_REDUCE_BLANKS   # Ignore redundant spaces in history
 
-alias hh='echo "Refresing history"; history -a; history -n'
+# Alias to refresh history in Zsh
+alias hh='echo "Refreshing history"; fc -AI'
 
-hf(){
- history | grep ${1:-"."} | tail -r -n 10000 | selecta | eval $(awk '{ $1=""; print $0 }')
+# Improved history search function
+hf() {
+  history | grep -i "${1:-"."}" | tail -r -n 10000 | fzf --height 40% --reverse --border | awk '{ $1=""; print $0 }' | xargs -I{} echo "{}"
 }
 
+# Show most frequently used commands
 histfreq() {
   history | awk '{a[$2]++}END{for(i in a){print a[i] " " i}}' | sort -rn | head -n 15
 }
