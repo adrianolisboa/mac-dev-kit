@@ -32,3 +32,9 @@ PS1='%F{magenta}%n %F{green}%1~ %F{yellow}$(git_branch_name)
 
 # Set CDPATH for easier navigation
 export CDPATH="$HOME"
+
+# Start SSH agent and add GitHub key automatically
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  eval "$(ssh-agent -s)" > /dev/null
+  ssh-add ~/.ssh/id_github 2>/dev/null
+fi
