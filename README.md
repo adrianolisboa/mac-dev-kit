@@ -1,16 +1,28 @@
-## Zsh and OSX configurations
+## Zsh and macOS configurations
 
-### Load configurations
+### Load shell configurations
 
-To use add to your __.zshrc__:
+Add this to your `.zshrc`:
 
-```
+```zsh
 LOAD_ROOT="$HOME/Projects/osx-conf"
 . ${LOAD_ROOT}/load
 ```
 
-Than `load` takes care of loading all functions, aliases and etc. Every directory defined in  `load` will be sourced recursively.
+`load` recursively sources the folders configured in the file.
 
-## OSX Setup
+## macOS setup (2026-ready)
 
-Then just run `./setup.sh`
+For a fresh macOS machine:
+
+```zsh
+cd "$HOME/Projects/osx-conf"
+./setup.sh
+```
+
+What `setup.sh` does:
+- Ensures Xcode Command Line Tools are installed (with timeout protection).
+- Installs Homebrew for Apple Silicon (`/opt/homebrew`) or Intel (`/usr/local`).
+- Installs packages from `Brewfile`.
+- Applies macOS defaults (safe in headless sessions).
+- Configures iTerm2 custom preferences if plist is present.
