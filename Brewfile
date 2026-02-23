@@ -1,8 +1,5 @@
 cask_args appdir: '/Applications'
 
-tap "homebrew/bundle"
-tap "homebrew/services"
-
 brew "coreutils"                     # GNU core utilities (better versions of ls, cat, etc.)
 brew "git"                           # Git version control
 brew "htop"                          # System monitoring tool

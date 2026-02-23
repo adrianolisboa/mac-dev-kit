@@ -5,7 +5,7 @@
 To use add to your __.zshrc__:
 
 ```
-LOAD_ROOT=/osx-setup
+LOAD_ROOT="$HOME/Projects/osx-conf"
 . ${LOAD_ROOT}/load
 ```
 
