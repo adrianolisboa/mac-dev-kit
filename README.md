@@ -29,10 +29,6 @@ That command orchestrates all phases, saves progress, and can pause between phas
 ./macforge setup --reset-state
 ```
 
-## Compatibility
-
-- `./setup.sh` still works and forwards to `./macforge setup`.
-
 ## Shell loader
 
 Add this to your `.zshrc`:
