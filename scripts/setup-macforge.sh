@@ -10,10 +10,12 @@ source "$REPO_ROOT/config/macforge.sh"
 
 TARGET_DIR="$HOME"
 BREWFILE_PATH="$REPO_ROOT/$BREWFILE_REL"
+BREWFILE_OPTIONAL_PATH="$REPO_ROOT/$BREWFILE_OPTIONAL_REL"
 ITERM_PLIST_PATH="$REPO_ROOT/$ITERM_PLIST_REL"
 STATE_DIR="${MACFORGE_STATE_DIR:-${WORKSTATION_STATE_DIR:-$STATE_DIR_DEFAULT}}"
 STATE_FILE="$STATE_DIR/$STATE_FILE_NAME"
 ZSHRC_PATH="${ZSHRC_PATH:-$HOME/.zshrc}"
+INSTALL_OPTIONAL_BREW="${MACFORGE_INSTALL_OPTIONAL_BREW:-0}"
 SHELL_LOADER_MARKER_BEGIN="# >>> macforge shell loader >>>"
 SHELL_LOADER_MARKER_END="# <<< macforge shell loader <<<"
 
@@ -28,6 +30,7 @@ PHASES=(
   "homebrew"
   "stow"
   "backup"
+  "migrate_legacy"
   "apply_dotfiles"
   "shell_loader"
   "brew_bundle"
@@ -41,12 +44,14 @@ Usage:
   ./macforge setup [options]
 
 Options:
-  --yes            Non-interactive mode (no prompts between phases)
-  --from <phase>   Start from a specific phase
-  --until <phase>  Stop after a specific phase
-  --list-phases    Print available phases and exit
-  --reset-state    Clear saved setup state before running
-  -h, --help       Show this help
+  --yes                    Non-interactive mode (no prompts between phases)
+  --from <phase>           Start from a specific phase
+  --until <phase>          Stop after a specific phase
+  --list-phases            Print available phases and exit
+  --reset-state            Clear saved setup state before running
+  --with-optional-brew     Install osx-conf/Brewfile.optional during brew_bundle
+  --without-optional-brew  Skip osx-conf/Brewfile.optional during brew_bundle
+  -h, --help               Show this help
 USAGE
 }
 
@@ -213,6 +218,76 @@ backup_conflicts() {
   fi
 }
 
+managed_source_path() {
+  local file="$1"
+  case "$file" in
+    .gitconfig) printf '%s\n' "$REPO_ROOT/git/.gitconfig" ;;
+    .gitconfig-personal) printf '%s\n' "$REPO_ROOT/git/.gitconfig-personal" ;;
+    .gitconfig-professional) printf '%s\n' "$REPO_ROOT/git/.gitconfig-professional" ;;
+    .gitignore) printf '%s\n' "$REPO_ROOT/git/.gitignore" ;;
+    .bashrc) printf '%s\n' "$REPO_ROOT/bash/.bashrc" ;;
+    .inputrc) printf '%s\n' "$REPO_ROOT/input/.inputrc" ;;
+    .tmux.conf) printf '%s\n' "$REPO_ROOT/tmux/.tmux.conf" ;;
+    *) return 1 ;;
+  esac
+}
+
+resolve_abs_file() {
+  local path="$1"
+  printf '%s/%s\n' "$(CDPATH= cd "$(dirname "$path")" && pwd -P)" "$(basename "$path")"
+}
+
+resolve_link_target_abs() {
+  local link_path="$1"
+  local raw_target
+  raw_target="$(readlink "$link_path")"
+  if [[ "$raw_target" == /* ]]; then
+    printf '%s\n' "$raw_target"
+  else
+    printf '%s/%s\n' "$(CDPATH= cd "$(dirname "$link_path")" && CDPATH= cd "$(dirname "$raw_target")" && pwd -P)" "$(basename "$raw_target")"
+  fi
+}
+
+migrate_legacy_links() {
+  log "[migrate_legacy] Migrating legacy dotfile symlinks to macforge..."
+
+  local file target source source_abs current_abs current_raw
+  local updates=0
+
+  for file in "${MANAGED_FILES[@]}"; do
+    target="$TARGET_DIR/$file"
+    source="$(managed_source_path "$file" || true)"
+    [[ -n "$source" && -e "$source" ]] || continue
+    source_abs="$(resolve_abs_file "$source")"
+
+    if [[ -L "$target" ]]; then
+      current_raw="$(readlink "$target")"
+      current_abs="$(resolve_link_target_abs "$target")"
+      if [[ "$current_abs" != "$source_abs" || "$current_raw" == /* ]]; then
+        rm -f "$target"
+        log "[migrate_legacy] Removed stale symlink $target (was $current_raw -> $current_abs)"
+        updates=$((updates + 1))
+      fi
+    fi
+  done
+
+  local expected_iterm current_iterm
+  expected_iterm="$REPO_ROOT/osx-conf/iterm2"
+  current_iterm="$(defaults read com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true)"
+  if [[ "$current_iterm" != "$expected_iterm" ]]; then
+    defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$expected_iterm"
+    defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
+    log "[migrate_legacy] Updated iTerm2 PrefsCustomFolder -> $expected_iterm"
+    updates=$((updates + 1))
+  fi
+
+  if (( updates == 0 )); then
+    log "[migrate_legacy] Nothing to migrate."
+  else
+    log "[migrate_legacy] Migration updates applied: $updates"
+  fi
+}
+
 apply_stow() {
   log "[apply_dotfiles] Applying dotfiles with stow..."
   cd "$REPO_ROOT"
@@ -258,11 +333,24 @@ EOF
 
 install_brew_dependencies() {
   log "[brew_bundle] Installing Brewfile dependencies..."
+
   if [[ ! -f "$BREWFILE_PATH" ]]; then
-    log "[brew_bundle] Brewfile missing at $BREWFILE_PATH. Skipping."
+    log "[brew_bundle] Core Brewfile missing at $BREWFILE_PATH. Skipping."
     return
   fi
   brew bundle --file="$BREWFILE_PATH"
+
+  if (( INSTALL_OPTIONAL_BREW == 1 )); then
+    if [[ -f "$BREWFILE_OPTIONAL_PATH" ]]; then
+      log "[brew_bundle] Installing optional Brewfile dependencies..."
+      brew bundle --file="$BREWFILE_OPTIONAL_PATH"
+    else
+      log "[brew_bundle] Optional Brewfile missing at $BREWFILE_OPTIONAL_PATH. Skipping optional installs."
+    fi
+  else
+    log "[brew_bundle] Optional Brewfile skipped. Use --with-optional-brew to install it."
+  fi
+
   log "[brew_bundle] Done."
 }
 
@@ -286,14 +374,22 @@ apply_macos_preferences() {
 configure_iterm2() {
   log "[iterm2] Configuring iTerm2 preferences..."
 
+  local expected_path current_path
+  expected_path="$REPO_ROOT/osx-conf/iterm2"
+
   if [[ ! -f "$ITERM_PLIST_PATH" ]]; then
     log "[iterm2] Missing plist at $ITERM_PLIST_PATH. Skipping."
     return
   fi
 
-  defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$REPO_ROOT/osx-conf/iterm2"
+  defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$expected_path"
   defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
   defaults write com.googlecode.iterm2 PromptOnQuit -bool false
+
+  current_path="$(defaults read com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true)"
+  if [[ "$current_path" != "$expected_path" ]]; then
+    die "Failed to set iTerm2 PrefsCustomFolder. Expected '$expected_path', got '$current_path'."
+  fi
 
   log "[iterm2] Done."
 }
@@ -305,6 +401,7 @@ run_phase() {
     homebrew) ensure_homebrew ;;
     stow) ensure_stow ;;
     backup) backup_conflicts ;;
+    migrate_legacy) migrate_legacy_links ;;
     apply_dotfiles) apply_stow ;;
     shell_loader) install_shell_loader ;;
     brew_bundle) install_brew_dependencies ;;
@@ -337,6 +434,14 @@ parse_args() {
         ;;
       --reset-state)
         RESET_STATE=1
+        shift
+        ;;
+      --with-optional-brew)
+        INSTALL_OPTIONAL_BREW=1
+        shift
+        ;;
+      --without-optional-brew)
+        INSTALL_OPTIONAL_BREW=0
         shift
         ;;
       -h|--help)

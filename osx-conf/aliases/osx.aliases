@@ -8,11 +8,9 @@ alias dropbox='open $HOME/Dropbox'
 alias books='open $HOME/Dropbox/Books'
 
 # Local repositories should be defined here
-alias vimdir='cd ${HOME}/.vim/' # https://github.com/adrianolisboa/vim
 alias nvimdir='cd ${HOME}/.config/nvim' # https://github.com/adrianolisboa/dots.nvim
-alias dotfiles='cd ${HOME}/dotfiles' # https://github.com/adrianolisboa/dotfiles
-alias shelldir='cd ${LOAD_ROOT}' # Those files
-alias envdir='cd ${LOAD_ROOT}/osx-setup'
+alias dotfiles='cd ${HOME}/Projects/macforge'
+alias shelldir='cd ${LOAD_ROOT}' # These shell files
 
 alias fshell='vim ${HOME}/.zshrc'
 alias sb='source ${HOME}/.zshrc'
@@ -20,19 +18,19 @@ alias vb="cd ${LOAD_ROOT}; v load; cd -;" # edit these conf files
 alias less='less -R' # print raw characters
 alias ll='ls -laF'
 alias ls='ls -F'
-#alias j='jobs'
 alias top='htop'
-alias about='neofetch'
-alias sys='neofetch'
 alias ssha='eval "$(ssh-agent -s)"'
-alias mkd='mkd'
 
-# some cool functions 
+if command -v fastfetch >/dev/null 2>&1; then
+  alias about='fastfetch'
+  alias sys='fastfetch'
+fi
+
+# Finder helpers
 alias showFiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
 alias hideFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
-alias fixkb="sudo kextunload -b com.apple.filesystems.smbfs"
 
-# Lunchctl
+# launchctl helpers
 alias listagents="sudo launchctl list"
 alias listnotappleagents="sudo launchctl list  | grep -v apple"
 alias removeagent="sudo launchctl remove"

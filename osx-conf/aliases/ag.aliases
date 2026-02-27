@@ -8,5 +8,7 @@
 #   -F (-F or --quit-if-one-screen) Auto exit if <1 screen
 #   -X (-X or --no-init) Disable termcap init & deinit
 
-alias ag='ag --smart-case --pager="less -MIRFX"'
-alias agi='ag --ignore dist/ --smart-case --pager="less -MIRFX"'
+if command -v ag >/dev/null 2>&1; then
+  alias ag='ag --smart-case --pager="less -MIRFX"'
+  alias agi='ag --ignore dist/ --smart-case --pager="less -MIRFX"'
+fi

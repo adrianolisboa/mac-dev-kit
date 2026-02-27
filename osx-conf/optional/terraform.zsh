@@ -1,3 +1,4 @@
+# macforge-requires: terraform
 # vim: ft=sh sw=2 ts=2 expandtab
 
 alias tf="terraform"

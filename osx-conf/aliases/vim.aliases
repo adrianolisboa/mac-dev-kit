@@ -2,5 +2,5 @@
 
 alias vim='nvim'
 alias v='vim'
-alias fvim='vim ${HOME}/.vim/vimrc'
+alias fvim='nvim ${HOME}/.config/nvim/init.lua'
 alias diff='vimdiff'

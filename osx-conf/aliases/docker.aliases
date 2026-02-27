@@ -7,22 +7,60 @@ alias dps="docker ps"
 alias dpl="docker ps -l -q"
 alias dsp="docker system prune"
 alias dip="docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
-alias dstop='function _dstop() { docker stop $(docker ps -a -q); };_dstop'
-alias drma='function _drm() { docker rm $(docker ps -a -q); };_drm'
-alias drai='function _drai() { docker rmi $(docker images -q); };_drai'
-alias draif='function _drai() { docker rmi $(docker images -q) --force; };_drai'
-alias dri='function _dri() { docker rmi "$1"; };_dri'
-alias drif='function _drif() { docker rmi "$1" --force; };_drif'
-alias dbash='function _dbash() { docker exec -it "$1" /bin/bash; };_dbash'
-alias dash='function _dash() { docker exec -it "$1" /bin/ash; };_dash'
-alias dr='function _drun() { docker run -it "$1" /bin/bash; };_drun'
-alias drr='function _drunroot() { docker run -it -u 0 "$1" /bin/bash; };_drunroot'
 
-alias dco='docker-compose'
-alias dcu='docker-compose up'
-alias dcud='docker-compose up -d'
-alias dcd='docker-compose down'
-alias dcl='docker-compose logs'
-alias dcr='docker-compose run'
-alias dcl='function _dclogs() { docker-compose logs -f "$1" -tail 1000;  };_dclogs'
-alias dcp='docker-compose pull'
+dstop() {
+  local ids
+  ids="$(docker ps -a -q)"
+  [[ -n "$ids" ]] && docker stop $ids
+}
+
+drma() {
+  local ids
+  ids="$(docker ps -a -q)"
+  [[ -n "$ids" ]] && docker rm $ids
+}
+
+drai() {
+  local ids
+  ids="$(docker images -q)"
+  [[ -n "$ids" ]] && docker rmi $ids
+}
+
+draif() {
+  local ids
+  ids="$(docker images -q)"
+  [[ -n "$ids" ]] && docker rmi $ids --force
+}
+
+dri() {
+  docker rmi "$1"
+}
+
+drif() {
+  docker rmi "$1" --force
+}
+
+dbash() {
+  docker exec -it "$1" /bin/bash
+}
+
+dash() {
+  docker exec -it "$1" /bin/ash
+}
+
+dr() {
+  docker run -it "$1" /bin/bash
+}
+
+drr() {
+  docker run -it -u 0 "$1" /bin/bash
+}
+
+alias dco='docker compose'
+alias dcu='docker compose up'
+alias dcud='docker compose up -d'
+alias dcd='docker compose down'
+alias dcr='docker compose run'
+alias dcp='docker compose pull'
+alias dcl='docker compose logs --tail 1000'
+alias dclf='docker compose logs -f --tail 1000'

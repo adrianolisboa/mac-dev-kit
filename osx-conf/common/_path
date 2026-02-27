@@ -1,24 +1,19 @@
 # Ensure this file is loaded early
 # vim: ft=sh sw=2 ts=2 expandtab
 
-# This file is named _path so it loads first,
-# ensuring other files have PATH set up correctly.
-
-# Function to add directories to PATH without duplicates
-push_to_path () {
+# This file is named _path so it loads first.
+push_to_path() {
   [[ -d "$1" && ! "$PATH" =~ (^|:)$1(:|$) ]] && PATH="$1:$PATH"
 }
 
-######
-# Add to PATH, in this order!
+# macforge helper scripts and user bins first.
+MACFORGE_LOAD_ROOT="${LOAD_ROOT:-$HOME/Projects/macforge/osx-conf}"
+push_to_path "$MACFORGE_LOAD_ROOT/bin"
+push_to_path "$HOME/.local/bin"
+push_to_path "$HOME/go/bin"
+push_to_path "/usr/local/go/bin"
 
-# Define the base directory for scripts
-ZSH_LOAD_ROOT="${ZSH_LOAD_ROOT:-$HOME/.zsh}"  # Update as needed
-
-# Custom scripts
-push_to_path "$ZSH_LOAD_ROOT/bin"
-
-# Homebrew binaries (Apple Silicon & Intel Macs)
+# Homebrew binaries (Apple Silicon and Intel Macs).
 if [[ -d "/opt/homebrew/bin" ]]; then
   push_to_path "/opt/homebrew/bin"
   push_to_path "/opt/homebrew/sbin"
@@ -27,7 +22,7 @@ elif [[ -d "/usr/local/bin" ]]; then
   push_to_path "/usr/local/sbin"
 fi
 
-# System paths (keep system defaults at the end)
+# System paths at the end.
 push_to_path "/usr/bin"
 push_to_path "/bin"
 push_to_path "/usr/sbin"

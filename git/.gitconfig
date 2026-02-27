@@ -1,17 +1,11 @@
 [includeIf "gitdir:~/PersonalProjects/"]
     path = .gitconfig-personal
-[includeIf "gitdir:~/dotfiles/"]
-    path = .gitconfig-personal
-[includeIf "gitdir:~/.vim/"]
-    path = .gitconfig-personal
 [includeIf "gitdir:~/Projects/"]
     path = .gitconfig-professional
 [color]
 	ui = true
-[merge]
-	tool = diffmerge
 [core]
-	editor = vim 
+	editor = nvim
 [pull]
   rebase = true
 [push]

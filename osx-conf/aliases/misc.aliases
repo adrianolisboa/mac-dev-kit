@@ -21,9 +21,12 @@ alias path='echo -e ${PATH//:/\\n}' # nice path printing
 alias envg='env | grep $1'
 alias cat='bat --paging=never --style=plain'
 alias psg="ps auxwww | head -n 1 ; ps auxwww | grep -Ei"
-alias ping='prettyping --nolegend'
 alias help='tldr'
 alias macversion='sw_vers'
 
-alias jsonv='python -m json.tool '
+alias jsonv='python3 -m json.tool '
 alias githubssh='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_github'
+
+if command -v prettyping >/dev/null 2>&1; then
+  alias ping='prettyping --nolegend'
+fi

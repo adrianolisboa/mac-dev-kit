@@ -1,13 +1,31 @@
 # vim: ft=sh sw=2 ts=2 expandtab
 
-source_files() {
-  if [[ -d $1 ]]; then
-    for file in $(find $1 -type f); do
-      . ${file}
-    done
-  fi
+source_sorted_dir() {
+  local dir="$1"
+  [[ -d "$dir" ]] || return 0
+
+  while IFS= read -r file; do
+    # shellcheck disable=SC1090
+    . "$file"
+  done < <(find "$dir" -maxdepth 1 -type f | LC_ALL=C sort)
 }
 
-source_files ${LOAD_ROOT}/aliases
-source_files ${LOAD_ROOT}/common
-source_files ${LOAD_ROOT}/functions
+source_optional_modules() {
+  local dir="$1"
+  local file required_cmd
+
+  [[ -d "$dir" ]] || return 0
+
+  while IFS= read -r file; do
+    required_cmd="$(awk -F': *' '/^# macforge-requires:/ {print $2; exit}' "$file")"
+    if [[ -z "$required_cmd" || -n "$(command -v "$required_cmd" 2>/dev/null)" ]]; then
+      # shellcheck disable=SC1090
+      . "$file"
+    fi
+  done < <(find "$dir" -maxdepth 1 -type f | LC_ALL=C sort)
+}
+
+source_sorted_dir "${LOAD_ROOT}/aliases"
+source_sorted_dir "${LOAD_ROOT}/common"
+source_sorted_dir "${LOAD_ROOT}/functions"
+source_optional_modules "${LOAD_ROOT}/optional"

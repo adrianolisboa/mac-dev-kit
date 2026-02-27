@@ -13,6 +13,7 @@ Usage:
 
 Commands:
   setup         Run full macforge setup (with checkpoints)
+  doctor        Validate local macforge shell/setup health
   phases        List setup phases
   help          Show this help
 
@@ -20,6 +21,7 @@ Examples:
   ./macforge setup
   ./macforge setup --yes
   ./macforge setup --from brew_bundle
+  ./macforge doctor
   ./macforge phases
 USAGE
 }
@@ -30,6 +32,9 @@ shift || true
 case "$command" in
   setup)
     exec "$SCRIPT_DIR/scripts/setup-macforge.sh" "$@"
+    ;;
+  doctor)
+    exec "$SCRIPT_DIR/scripts/doctor-macforge.sh" "$@"
     ;;
   phases)
     exec "$SCRIPT_DIR/scripts/setup-macforge.sh" --list-phases

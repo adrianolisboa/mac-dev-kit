@@ -7,13 +7,13 @@ alias gclo='git clone'
 alias gl='git pull'
 alias gf='git fetch'
 alias glr='git pull --rebase'
-alias grm='git rebase master'
+alias grm='git rebase "$(git_default_branch)"'
 alias gri='git rebase -i --autosquash'
 alias grc='git rebase --continue'
 alias gp='git push'
 alias gr='git revert'
 alias gpf='confirm && git push --force-with-lease' # https://developer.atlassian.com/blog/2015/04/force-with-lease/
-alias gpp='git push --set-upstream origin master'
+alias gpp='git push --set-upstream origin "$(git branch --show-current)"'
 alias gpt='git push --tags'
 alias gd='git diff'
 alias gdiff='git diff'
@@ -23,7 +23,7 @@ alias ga='git add -p'
 alias gaa='git add .'
 alias gaf='git add'
 alias gc='git commit -v'
-alias gmm='git merge master'
+alias gmm='git merge "$(git_default_branch)"'
 alias gmc='git merge --continue'
 alias gcf='git commit --fixup'
 alias gca='git commit --amend --no-edit'
@@ -32,9 +32,8 @@ alias gcam='git commit --amend'
 alias gb='git branch'
 alias gba='git branch -a'
 alias gco='git checkout'
-alias gcom='git checkout master'
+alias gcom='git checkout "$(git_default_branch)"'
 alias gcob="git checkout -b"
-alias gpm="git checkout master && git pull && git checkout @{-1}"
 alias gcot='git checkout -t'
 alias gcle='git clean -df'
 alias glog='git log --oneline --decorate --graph --all -30'
@@ -51,5 +50,13 @@ alias gsha='git-shalector'
 alias gprntags='git fetch origin --prune --tags'
 alias gundocommit='git reset --soft HEAD^'
 
-git_push_set_upstream() { git push --set-upstream origin $(git branch | awk '/^\* / { print $2 }'); }
+gpm() {
+  local base
+  base="$(git_default_branch)"
+  git checkout "$base" && git pull && git checkout @{-1}
+}
+
+git_push_set_upstream() {
+  git push --set-upstream origin "$(git branch --show-current)"
+}
 alias gpo=git_push_set_upstream

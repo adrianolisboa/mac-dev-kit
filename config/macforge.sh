@@ -15,6 +15,7 @@ MANAGED_FILES=(
 )
 
 BREWFILE_REL="osx-conf/Brewfile"
+BREWFILE_OPTIONAL_REL="osx-conf/Brewfile.optional"
 ITERM_PLIST_REL="osx-conf/iterm2/com.googlecode.iterm2.plist"
 
 STATE_DIR_DEFAULT="$HOME/.local/state/macforge"

@@ -1,0 +1,10 @@
+# vim: ft=zsh sw=2 ts=2 expandtab
+
+[[ -o interactive ]] || return 0
+
+autoload -Uz compinit
+
+if [[ -z "${MACFORGE_COMPINIT_DONE:-}" ]]; then
+  compinit -i
+  MACFORGE_COMPINIT_DONE=1
+fi

@@ -1,40 +1,38 @@
 # vim: ft=zsh sw=2 ts=2 expandtab
 
-# Set default text editors
-export VISUAL="vim"
+export VISUAL="nvim"
 export EDITOR="$VISUAL"
-# export TMPDIR=/tmp  # Uncomment if needed
 
-# Enable colors in macOS Terminal (works in Zsh)
 export CLICOLOR=1
 export LSCOLORS="gxBxhxDxfxhxhxhxhxcxcx"
-
-# Load vcs_info for Git branch detection
-#
-# Find and set branch name var if in git repository.
-function git_branch_name()
-{
-  branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
-  if [[ $branch == "" ]];
-  then
-    :
-  else
-    echo '('$branch')'
-  fi
-}
-
-# Enable substitution in the prompt.
-setopt prompt_subst
-
-# Set the Zsh Prompt with Git branch
-PS1='%F{magenta}%n %F{green}%1~ %F{yellow}$(git_branch_name)
-%F{yellow}»%f '
-
-# Set CDPATH for easier navigation
 export CDPATH="$HOME"
 
-# Start SSH agent and add GitHub key automatically
-if [ -z "$SSH_AUTH_SOCK" ]; then
-  eval "$(ssh-agent -s)" > /dev/null
-  ssh-add ~/.ssh/id_github 2>/dev/null
+git_branch_name() {
+  local branch
+  branch="$(git symbolic-ref HEAD 2>/dev/null | awk 'BEGIN{FS="/"} {print $NF}')"
+  [[ -n "$branch" ]] && echo "($branch)"
+}
+
+if [[ -o interactive ]]; then
+  setopt prompt_subst
+  PS1='%F{magenta}%n %F{green}%1~ %F{yellow}$(git_branch_name)
+%F{yellow}»%f '
+
+  # Start ssh-agent automatically if needed.
+  if [[ -z "$SSH_AUTH_SOCK" ]]; then
+    eval "$(ssh-agent -s)" >/dev/null
+    ssh-add ~/.ssh/id_github 2>/dev/null || true
+  fi
 fi
+
+# Optional private secrets. Keep file mode as 600.
+MACFORGE_SECRETS_FILE="${HOME}/.config/macforge/secrets.zsh"
+if [[ -f "$MACFORGE_SECRETS_FILE" ]]; then
+  if [[ "$(stat -f '%OLp' "$MACFORGE_SECRETS_FILE" 2>/dev/null || echo 0)" == "600" ]]; then
+    # shellcheck disable=SC1090
+    source "$MACFORGE_SECRETS_FILE"
+  else
+    echo "macforge: skipping $MACFORGE_SECRETS_FILE (expected chmod 600)." >&2
+  fi
+fi
+unset MACFORGE_SECRETS_FILE

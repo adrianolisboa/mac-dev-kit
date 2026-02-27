@@ -11,7 +11,7 @@ alias mixclco="mix do clean compile"
 alias mixdg="mix deps.get"
 alias mixes="mix ecto.setup"
 alias mixdc="mix docs"
-alias mixes='mix format && mix format --check-formatted && mix test && mix credo --strict && mix coveralls -u' # thanks @brosquinha
+alias mixqa='mix format && mix format --check-formatted && mix test && mix credo --strict && mix coveralls -u' # thanks @brosquinha
 alias mmig='mix ecto.migrate && MIX_ENV=test mix ecto.migrate'
 
 # phoenix
@@ -20,15 +20,6 @@ alias mixphx="iex -S mix phx.server"
 # iex
 alias iexm="iex -S mix"
 alias iexp="iex -S mix phx.server"
-
-# gigalixir
-alias giga="gigalixir"
-alias gigar="gigalixir run"
-alias gigaa="gigalixir apps"
-alias gigal="gigalixir logs"
-alias gigaps="gigalixir ps"
-alias gigaseeds="gigalixir run -- mix run priv/repo/seeds.exs"
-
 
 mixroutes() {
   local query="$1"

@@ -1,0 +1,12 @@
+cask_args appdir: '/Applications'
+
+# Optional / legacy / workflow-specific tools.
+brew "coreutils"
+brew "openconnect"
+brew "selecta"
+brew "pass"
+brew "thefuck"
+brew "prettyping"
+brew "autojump"
+brew "reattach-to-user-namespace"
+brew "the_silver_searcher"
