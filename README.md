@@ -13,7 +13,7 @@ That command orchestrates all phases, saves progress, and can pause between phas
 
 ## Setup behavior
 
-- Runs in phases (`xcode_clt`, `homebrew`, `stow`, `backup`, `apply_dotfiles`, `brew_bundle`, `macos_defaults`, `iterm2`).
+- Runs in phases (`xcode_clt`, `homebrew`, `stow`, `backup`, `apply_dotfiles`, `shell_loader`, `brew_bundle`, `macos_defaults`, `iterm2`).
 - Saves state at `~/.local/state/macforge/setup.state`.
 - If interrupted, re-run the same command to resume.
 - Prompts before moving to the next phase (use `--yes` for non-interactive mode).
@@ -31,9 +31,10 @@ That command orchestrates all phases, saves progress, and can pause between phas
 
 ## Shell loader
 
-Add this to your `.zshrc`:
+`./macforge setup` now auto-adds and maintains the loader block in `~/.zshrc`.
 
-```zsh
-LOAD_ROOT="$HOME/Projects/macforge/osx-conf"
-. ${LOAD_ROOT}/load
+If you want to target a different file:
+
+```bash
+ZSHRC_PATH="$HOME/.zshrc.local" ./macforge setup --from shell_loader --until shell_loader
 ```

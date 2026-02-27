@@ -1,10 +1,9 @@
 ## Shell Config Loader
 
-Add this to your `.zshrc`:
+The shell loader is added automatically by:
 
-```zsh
-LOAD_ROOT="$HOME/Projects/macforge/osx-conf"
-. ${LOAD_ROOT}/load
+```bash
+./macforge setup
 ```
 
 ## Full setup
