@@ -24,6 +24,7 @@ That command orchestrates all phases, saves progress, and can pause between phas
 ./macforge help
 ./macforge phases
 ./macforge doctor
+./macforge hooks
 ./macforge setup --yes
 ./macforge setup --from brew_bundle
 ./macforge setup --until apply_dotfiles
@@ -62,3 +63,13 @@ chmod 600 "$HOME/.config/macforge/secrets.zsh"
 ```
 
 Then place private exports in that file (for example API keys).
+
+## Security hook
+
+Install a pre-push hook that runs `gitleaks`:
+
+```bash
+./macforge hooks
+```
+
+The hook blocks push if potential secrets are detected in the outgoing commit range.

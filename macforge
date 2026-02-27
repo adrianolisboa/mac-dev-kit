@@ -14,6 +14,7 @@ Usage:
 Commands:
   setup         Run full macforge setup (with checkpoints)
   doctor        Validate local macforge shell/setup health
+  hooks         Install git hooks (pre-push gitleaks scan)
   phases        List setup phases
   help          Show this help
 
@@ -22,6 +23,7 @@ Examples:
   ./macforge setup --yes
   ./macforge setup --from brew_bundle
   ./macforge doctor
+  ./macforge hooks
   ./macforge phases
 USAGE
 }
@@ -35,6 +37,9 @@ case "$command" in
     ;;
   doctor)
     exec "$SCRIPT_DIR/scripts/doctor-macforge.sh" "$@"
+    ;;
+  hooks)
+    exec "$SCRIPT_DIR/scripts/install-git-hooks.sh" "$@"
     ;;
   phases)
     exec "$SCRIPT_DIR/scripts/setup-macforge.sh" --list-phases

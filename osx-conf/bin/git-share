@@ -1,12 +1,64 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# To share a subset of git repositories across machines through ssh
-# on `authorized_keys` add something like:
-#
-# command='git-share "directory" ',no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty ssh-rsa KEY...
-#
-if [[ ! -z "$1" && "${SSH_ORIGINAL_COMMAND}" == *"$1"* ]]; then
-  cd ~/Projects/ && exec git-shell -c "$SSH_ORIGINAL_COMMAND"
-else
+# Restrict git-shell access to repositories under an allowed prefix.
+# Example authorized_keys entry:
+# command='git-share "team-repos"',no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty ssh-rsa KEY...
+
+set -euo pipefail
+
+ALLOWED_PREFIX="${1:-}"
+CMD="${SSH_ORIGINAL_COMMAND:-}"
+
+deny() {
   exit 1
-fi
+}
+
+extract_command_and_repo() {
+  # Accept common git-shell patterns:
+  #   git-upload-pack 'path/repo.git'
+  #   git-receive-pack "path/repo.git"
+  #   git-upload-archive path/repo.git
+  if [[ "$CMD" =~ ^(git-upload-pack|git-receive-pack|git-upload-archive)[[:space:]]+\'([^\']+)\'$ ]]; then
+    GIT_OP="${BASH_REMATCH[1]}"
+    GIT_REPO="${BASH_REMATCH[2]}"
+    return 0
+  fi
+  if [[ "$CMD" =~ ^(git-upload-pack|git-receive-pack|git-upload-archive)[[:space:]]+\"([^\"]+)\"$ ]]; then
+    GIT_OP="${BASH_REMATCH[1]}"
+    GIT_REPO="${BASH_REMATCH[2]}"
+    return 0
+  fi
+  if [[ "$CMD" =~ ^(git-upload-pack|git-receive-pack|git-upload-archive)[[:space:]]+([^[:space:]]+)$ ]]; then
+    GIT_OP="${BASH_REMATCH[1]}"
+    GIT_REPO="${BASH_REMATCH[2]}"
+    return 0
+  fi
+  return 1
+}
+
+path_is_safe() {
+  local path="$1"
+  [[ -n "$path" ]] || return 1
+  [[ "$path" != /* ]] || return 1
+  [[ "$path" != *$'\n'* ]] || return 1
+
+  case "/$path/" in
+    *"/../"*|*"/./"*|*"//"*) return 1 ;;
+  esac
+  return 0
+}
+
+prefix_is_allowed() {
+  local repo="$1"
+  local prefix="$2"
+  [[ "$repo" == "$prefix" || "$repo" == "$prefix/"* ]]
+}
+
+[[ -n "$ALLOWED_PREFIX" ]] || deny
+path_is_safe "$ALLOWED_PREFIX" || deny
+extract_command_and_repo || deny
+path_is_safe "$GIT_REPO" || deny
+prefix_is_allowed "$GIT_REPO" "$ALLOWED_PREFIX" || deny
+
+cd "$HOME/Projects" || deny
+exec git-shell -c "$CMD"
