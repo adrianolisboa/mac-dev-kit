@@ -1,23 +1,18 @@
-## Zsh and macOS configurations
-
-### Load shell configurations
+## Shell Config Loader
 
 Add this to your `.zshrc`:
 
 ```zsh
-LOAD_ROOT="$HOME/mac-dev-kit/osx-conf"
+LOAD_ROOT="$HOME/Projects/macforge/osx-conf"
 . ${LOAD_ROOT}/load
 ```
 
-`load` recursively sources the folders configured in the file.
+## Full setup
 
-## macOS setup
+Run from repo root:
 
-For a fresh macOS machine:
-
-```zsh
-cd "$HOME/mac-dev-kit"
-./setup.sh
+```bash
+./macforge setup
 ```
 
-The top-level `setup.sh` handles dotfiles, Homebrew dependencies, and macOS preferences.
+This runs all setup phases, with checkpoints and resume support.

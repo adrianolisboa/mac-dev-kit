@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+  cat <<'USAGE'
+macforge
+
+Usage:
+  ./macforge <command> [options]
+
+Commands:
+  setup         Run full macforge setup (with checkpoints)
+  phases        List setup phases
+  help          Show this help
+
+Examples:
+  ./macforge setup
+  ./macforge setup --yes
+  ./macforge setup --from brew_bundle
+  ./macforge phases
+USAGE
+}
+
+command="${1:-help}"
+shift || true
+
+case "$command" in
+  setup)
+    exec "$SCRIPT_DIR/scripts/setup-macforge.sh" "$@"
+    ;;
+  phases)
+    exec "$SCRIPT_DIR/scripts/setup-macforge.sh" --list-phases
+    ;;
+  help|-h|--help)
+    usage
+    ;;
+  *)
+    echo "Unknown command: $command" >&2
+    usage
+    exit 1
+    ;;
+esac

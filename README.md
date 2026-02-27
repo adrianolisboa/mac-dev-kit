@@ -1,40 +1,43 @@
-# mac-dev-kit
+# macforge
 
-Single repository for:
-- Dotfiles managed with GNU Stow.
-- macOS bootstrap/setup scripts and shell environment (`osx-conf/`).
+Personal macOS bootstrap + dotfiles + shell tooling in one place.
 
-### Install on a fresh macOS machine
+## One command setup
 
 ```bash
-git clone git@github.com:adrianolisboa/dotfiles.git ~/mac-dev-kit
-cd ~/mac-dev-kit
-./setup.sh
+cd "$HOME/Projects/macforge"
+./macforge setup
 ```
 
-`setup.sh` will:
-- Ensure Xcode Command Line Tools are installed.
-- Ensure Homebrew is installed.
-- Install GNU Stow if needed.
-- Back up conflicting existing files to `~/.dotfiles-backup/<timestamp>/`.
-- Symlink all managed packages (`git`, `bash`, `input`, `tmux`) into `$HOME`.
-- Install dependencies from `osx-conf/Brewfile`.
-- Apply macOS and iTerm2 preferences.
+That command orchestrates all phases, saves progress, and can pause between phases.
 
-### Manual dotfiles usage
+## Setup behavior
+
+- Runs in phases (`xcode_clt`, `homebrew`, `stow`, `backup`, `apply_dotfiles`, `brew_bundle`, `macos_defaults`, `iterm2`).
+- Saves state at `~/.local/state/macforge/setup.state`.
+- If interrupted, re-run the same command to resume.
+- Prompts before moving to the next phase (use `--yes` for non-interactive mode).
+
+## Useful commands
 
 ```bash
-cd ~/mac-dev-kit
-stow --target "$HOME" git bash input tmux
+./macforge help
+./macforge phases
+./macforge setup --yes
+./macforge setup --from brew_bundle
+./macforge setup --until apply_dotfiles
+./macforge setup --reset-state
 ```
 
-### Shell loader
+## Compatibility
+
+- `./setup.sh` still works and forwards to `./macforge setup`.
+
+## Shell loader
 
 Add this to your `.zshrc`:
 
 ```zsh
-LOAD_ROOT="$HOME/mac-dev-kit/osx-conf"
+LOAD_ROOT="$HOME/Projects/macforge/osx-conf"
 . ${LOAD_ROOT}/load
 ```
-
-`setup.sh` already includes macOS setup from `osx-conf`.
