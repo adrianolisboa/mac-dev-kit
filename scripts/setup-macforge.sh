@@ -36,6 +36,7 @@ PHASES=(
   "brew_bundle"
   "macos_defaults"
   "iterm2"
+  "cursor_profile"
 )
 
 usage() {
@@ -394,6 +395,12 @@ configure_iterm2() {
   log "[iterm2] Done."
 }
 
+sync_cursor_profile() {
+  log "[cursor_profile] Applying global Cursor profile..."
+  "$REPO_ROOT/scripts/sync-cursor-profile.sh"
+  log "[cursor_profile] Done."
+}
+
 run_phase() {
   local phase="$1"
   case "$phase" in
@@ -407,6 +414,7 @@ run_phase() {
     brew_bundle) install_brew_dependencies ;;
     macos_defaults) apply_macos_preferences ;;
     iterm2) configure_iterm2 ;;
+    cursor_profile) sync_cursor_profile ;;
     *) die "Unknown phase: $phase" ;;
   esac
 }

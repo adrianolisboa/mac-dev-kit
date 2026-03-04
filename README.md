@@ -14,6 +14,7 @@ That command orchestrates all phases, saves progress, and can pause between phas
 ## Setup behavior
 
 - Runs in phases (`xcode_clt`, `homebrew`, `stow`, `backup`, `migrate_legacy`, `apply_dotfiles`, `shell_loader`, `brew_bundle`, `macos_defaults`, `iterm2`).
+- Runs in phases (`xcode_clt`, `homebrew`, `stow`, `backup`, `migrate_legacy`, `apply_dotfiles`, `shell_loader`, `brew_bundle`, `macos_defaults`, `iterm2`, `cursor_profile`).
 - Saves state at `~/.local/state/macforge/setup.state`.
 - If interrupted, re-run the same command to resume.
 - Prompts before moving to the next phase (use `--yes` for non-interactive mode).
@@ -25,6 +26,7 @@ That command orchestrates all phases, saves progress, and can pause between phas
 ./macforge phases
 ./macforge doctor
 ./macforge hooks
+./macforge cursor-profile
 ./macforge setup --yes
 ./macforge setup --from brew_bundle
 ./macforge setup --until apply_dotfiles
@@ -73,3 +75,13 @@ Install a pre-push hook that runs `gitleaks`:
 ```
 
 The hook blocks push if potential secrets are detected in the outgoing commit range.
+
+## Cursor profile
+
+`./macforge cursor-profile` applies the versioned global Cursor profile in `cursor-profile/`:
+
+- `User/settings.json`
+- `User/keybindings.json`
+- `extensions.txt`
+
+The command writes the files into `~/Library/Application Support/Cursor/User` and installs or updates the listed extensions through the Cursor CLI when it is available.

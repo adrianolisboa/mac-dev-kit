@@ -15,6 +15,7 @@ Commands:
   setup         Run full macforge setup (with checkpoints)
   doctor        Validate local macforge shell/setup health
   hooks         Install git hooks (pre-push gitleaks scan)
+  cursor-profile Apply global Cursor preferences and extensions
   phases        List setup phases
   help          Show this help
 
@@ -24,6 +25,7 @@ Examples:
   ./macforge setup --from brew_bundle
   ./macforge doctor
   ./macforge hooks
+  ./macforge cursor-profile
   ./macforge phases
 USAGE
 }
@@ -40,6 +42,9 @@ case "$command" in
     ;;
   hooks)
     exec "$SCRIPT_DIR/scripts/install-git-hooks.sh" "$@"
+    ;;
+  cursor-profile)
+    exec "$SCRIPT_DIR/scripts/sync-cursor-profile.sh" "$@"
     ;;
   phases)
     exec "$SCRIPT_DIR/scripts/setup-macforge.sh" --list-phases
